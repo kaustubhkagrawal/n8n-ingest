@@ -20,57 +20,70 @@ export const extractNodes: CollectionAfterChangeHook = async ({
         return
       }
 
-      const extractedNodeIds = []
+      const nodeTypes = nodes.map((node) => node.type)
+      const existingNodes = await req.payload.find({
+        collection: 'n8n-nodes',
+        where: {
+          type: {
+            in: nodeTypes,
+          },
+        },
+        limit: nodes.length,
+      })
+
+      const existingNodeMap = new Map(existingNodes.docs.map((node) => [node.type, node]))
+      const nodesToCreate = []
+      const nodesToUpdate = []
 
       for (const node of nodes) {
-        const { id: nodeId, name, type, position, parameters, typeVersion } = node
+        const { name, type, parameters } = node
+        const data = {
+          name,
+          type,
+          description: '',
+          properties: parameters ? JSON.stringify(parameters) : '{}',
+        }
 
-        try {
-          const existingNode = await req.payload.find({
-            collection: 'n8n-nodes',
-            where: {
-              type: {
-                equals: type,
-              },
-            },
-            limit: 1,
+        const existingNode = existingNodeMap.get(type)
+        if (existingNode) {
+          nodesToUpdate.push({
+            id: existingNode.id,
+            ...data,
           })
-
-          let savedNode: any
-          if (existingNode.docs.length > 0) {
-            // Update existing node
-            const nodeIdToUpdate = existingNode.docs[0].id
-            savedNode = await req.payload.update({
-              collection: 'n8n-nodes',
-              id: nodeIdToUpdate,
-              data: {
-                name,
-                type,
-                description: '',
-                properties: parameters ? JSON.stringify(parameters) : '{}',
-              },
-            })
-          } else {
-            // Create new node
-            savedNode = await req.payload.create({
-              collection: 'n8n-nodes',
-              data: {
-                name,
-                type,
-                description: '',
-                properties: parameters ? JSON.stringify(parameters) : '{}',
-              },
-            })
-          }
-          extractedNodeIds.push(savedNode.id)
-        } catch (error: unknown) {
-          req.payload.logger.error(
-            `Error processing node ${name} (${type}): ${error instanceof Error ? error.message : 'An unknown error occurred'}`,
-          )
+        } else {
+          nodesToCreate.push(data)
         }
       }
 
-      // Update the workflow template with the extracted node relationships
+      const createdNodePromises = nodesToCreate.map((data) =>
+        req.payload.create({
+          collection: 'n8n-nodes',
+          data,
+        }),
+      )
+
+      const updatedNodePromises = nodesToUpdate.map(({ id, ...data }) =>
+        req.payload.update({
+          collection: 'n8n-nodes',
+          id,
+          data,
+        }),
+      )
+
+      const settledPromises = await Promise.allSettled([
+        ...createdNodePromises,
+        ...updatedNodePromises,
+      ])
+
+      const extractedNodeIds = settledPromises
+        .filter((result) => result.status === 'fulfilled')
+        .map((result) => (result as PromiseFulfilledResult<any>).value.id)
+
+      settledPromises.forEach((result) => {
+        if (result.status === 'rejected') {
+          req.payload.logger.error(`Error processing node: ${result.reason}`)
+        }
+      })
       if (extractedNodeIds.length > 0) {
         await req.payload.update({
           collection: 'n8n-workflow-templates',
