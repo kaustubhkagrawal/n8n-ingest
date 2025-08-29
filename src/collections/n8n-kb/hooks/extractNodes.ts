@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { CollectionAfterChangeHook } from 'payload'
+import type { CollectionBeforeChangeHook } from 'payload'
 
-export const extractNodes: CollectionAfterChangeHook = async ({
-  doc, // full document data
+export const extractNodes: CollectionBeforeChangeHook = async ({
+  data, // incoming data to be saved
   req, // full express request
-  previousDoc, // document data before updating the collection
+  originalDoc, // original document before changes (for updates)
   operation, // name of the operation ie. 'create', 'update'
-}: Parameters<CollectionAfterChangeHook>[0]) => {
+}: Parameters<CollectionBeforeChangeHook>[0]) => {
   // Add a log to indicate the hook is triggered
   req.payload.logger.info(`extractNodes hook triggered for operation: ${operation}`)
 
   if (operation === 'update' || operation === 'create') {
     try {
-      const workflowData = doc.workflow
+      const workflowData = data.workflow
       const nodes = workflowData?.nodes || []
 
       if (!Array.isArray(nodes)) {
         req.payload.logger.error('Workflow nodes is not an array.')
-        return
+        return data
       }
 
       const nodeTypes = nodes.map((node) => node.type)
@@ -35,6 +35,9 @@ export const extractNodes: CollectionAfterChangeHook = async ({
       const nodesToCreate = []
       const nodesToUpdate = []
 
+      // Determine the document ID to use for workflow references
+      const workflowId = operation === 'update' && originalDoc ? originalDoc.id : data.id
+
       for (const node of nodes) {
         const { name, type, parameters } = node
 
@@ -47,7 +50,9 @@ export const extractNodes: CollectionAfterChangeHook = async ({
 
           // Add current workflow if not already present
           const workflowsSet = new Set(existingWorkflows)
-          workflowsSet.add(doc.id)
+          if (workflowId) {
+            workflowsSet.add(workflowId)
+          }
 
           nodesToUpdate.push({
             id: type, // Use type as the ID
@@ -65,23 +70,23 @@ export const extractNodes: CollectionAfterChangeHook = async ({
             type,
             description: '',
             properties: parameters ? JSON.stringify(parameters) : '{}',
-            workflows: [doc.id] as string[], // Include current workflow
+            workflows: workflowId ? ([workflowId] as string[]) : [], // Include current workflow if available
           })
         }
       }
 
-      const createdNodePromises = nodesToCreate.map((data) =>
+      const createdNodePromises = nodesToCreate.map((nodeData) =>
         req.payload.create({
           collection: 'n8n-nodes',
-          data,
+          data: nodeData,
         }),
       )
 
-      const updatedNodePromises = nodesToUpdate.map(({ id, ...data }) =>
+      const updatedNodePromises = nodesToUpdate.map(({ id, ...nodeData }) =>
         req.payload.update({
           collection: 'n8n-nodes',
           id,
-          data,
+          data: nodeData,
         }),
       )
 
@@ -103,20 +108,18 @@ export const extractNodes: CollectionAfterChangeHook = async ({
           req.payload.logger.error(`Error processing node: ${result.reason}`)
         }
       })
+
+      // Set the nodes field directly on the data object before it's saved
       if (extractedNodeIds.length > 0) {
-        await req.payload.update({
-          collection: 'n8n-workflow-templates',
-          id: doc.id,
-          data: {
-            nodes: extractedNodeIds,
-          },
-        })
+        data.nodes = extractedNodeIds
       }
     } catch (error: unknown) {
       req.payload.logger.error(
-        `Error extracting nodes from workflow ${doc.id}: ${error instanceof Error ? error.message : 'An unknown error occurred'}`,
+        `Error extracting nodes from workflow: ${error instanceof Error ? error.message : 'An unknown error occurred'}`,
       )
     }
   }
-  return doc
+
+  // Return the modified data object
+  return data
 }

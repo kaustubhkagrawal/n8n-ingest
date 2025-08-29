@@ -11,7 +11,7 @@ export const N8NWorkflowTemplates: CollectionConfig = {
     group: 'n8n-kb',
   },
   hooks: {
-    afterChange: [extractNodes],
+    beforeChange: [extractNodes],
   },
   access: {
     create: anyone,
