@@ -31,27 +31,42 @@ export const extractNodes: CollectionAfterChangeHook = async ({
         limit: nodes.length,
       })
 
-      const existingNodeMap = new Map(existingNodes.docs.map((node) => [node.type, node]))
+      const existingNodeMap = new Map(existingNodes.docs.map((node: any) => [node.type, node]))
       const nodesToCreate = []
       const nodesToUpdate = []
 
       for (const node of nodes) {
         const { name, type, parameters } = node
-        const data = {
-          name,
-          type,
-          description: '',
-          properties: parameters ? JSON.stringify(parameters) : '{}',
-        }
 
-        const existingNode = existingNodeMap.get(type)
+        const existingNode = existingNodeMap.get(type) as any
         if (existingNode) {
+          // For existing nodes, we need to merge the workflows array
+          const existingWorkflows = Array.isArray(existingNode.workflows)
+            ? existingNode.workflows.map((w: any) => (typeof w === 'string' ? w : w.id))
+            : []
+
+          // Add current workflow if not already present
+          const workflowsSet = new Set(existingWorkflows)
+          workflowsSet.add(doc.id)
+
           nodesToUpdate.push({
-            id: existingNode.id,
-            ...data,
+            id: type, // Use type as the ID
+            name,
+            type,
+            description: existingNode.description || '',
+            properties: parameters ? JSON.stringify(parameters) : existingNode.properties || '{}',
+            workflows: Array.from(workflowsSet) as string[],
           })
         } else {
-          nodesToCreate.push(data)
+          // For new nodes, include the current workflow in the workflows field
+          nodesToCreate.push({
+            id: type, // Use type as the ID
+            name,
+            type,
+            description: '',
+            properties: parameters ? JSON.stringify(parameters) : '{}',
+            workflows: [doc.id] as string[], // Include current workflow
+          })
         }
       }
 
@@ -77,7 +92,11 @@ export const extractNodes: CollectionAfterChangeHook = async ({
 
       const extractedNodeIds = settledPromises
         .filter((result) => result.status === 'fulfilled')
-        .map((result) => (result as PromiseFulfilledResult<any>).value.id)
+        .map((result) => {
+          const value = (result as PromiseFulfilledResult<any>).value
+          // Since we're using type as ID, return the type field
+          return value.type || value.id
+        })
 
       settledPromises.forEach((result) => {
         if (result.status === 'rejected') {

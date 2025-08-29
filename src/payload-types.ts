@@ -780,6 +780,10 @@ export interface N8NNode {
     | number
     | boolean
     | null;
+  /**
+   * Workflows that use this node
+   */
+  workflows?: (string | N8NWorkflowTemplate)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1367,11 +1371,13 @@ export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
  * via the `definition` "n8n-nodes_select".
  */
 export interface N8NNodesSelect<T extends boolean = true> {
+  id?: T;
   name?: T;
   type?: T;
   description?: T;
   usageGuidelines?: T;
   properties?: T;
+  workflows?: T;
   updatedAt?: T;
   createdAt?: T;
 }
