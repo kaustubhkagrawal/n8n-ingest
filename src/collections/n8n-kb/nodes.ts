@@ -4,7 +4,7 @@ import type { CollectionConfig } from 'payload'
 export const Nodes: CollectionConfig = {
   slug: 'n8n-nodes',
   admin: {
-    useAsTitle: 'name',
+    useAsTitle: 'type',
     group: 'n8n-kb',
   },
   access: {

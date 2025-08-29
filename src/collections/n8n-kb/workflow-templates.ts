@@ -8,6 +8,7 @@ export const N8NWorkflowTemplates: CollectionConfig = {
   slug: 'n8n-workflow-templates',
   admin: {
     useAsTitle: 'name',
+    group: 'n8n-kb',
   },
   hooks: {
     afterChange: [extractNodes],
