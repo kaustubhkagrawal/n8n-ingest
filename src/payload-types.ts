@@ -1371,7 +1371,6 @@ export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
  * via the `definition` "n8n-nodes_select".
  */
 export interface N8NNodesSelect<T extends boolean = true> {
-  id?: T;
   name?: T;
   type?: T;
   description?: T;

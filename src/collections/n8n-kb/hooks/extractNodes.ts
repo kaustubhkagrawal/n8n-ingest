@@ -15,30 +15,39 @@ export const updateNodeRelationshipsAfterCreate: CollectionAfterChangeHook = asy
     try {
       // Update each node to include this workflow in their relationships
       const updatePromises = doc.nodes.map(async (nodeId: string) => {
-        const node = await req.payload.findByID({
-          collection: 'n8n-nodes',
-          id: nodeId,
-        })
+        try {
+          req.payload.logger.info(`[updateNodeRelationships] Looking up node with ID: ${nodeId}`)
 
-        const existingWorkflows = Array.isArray(node.workflows)
-          ? node.workflows.map((w: any) => (typeof w === 'string' ? w : w.id))
-          : []
+          // Get the node by its ID
+          const node = await req.payload.findByID({
+            collection: 'n8n-nodes',
+            id: nodeId,
+          })
+          const existingWorkflows = Array.isArray(node.workflows)
+            ? node.workflows.map((w: any) => (typeof w === 'string' ? w : w.id))
+            : []
 
-        // Add current workflow if not already present
-        const workflowsSet = new Set(existingWorkflows)
-        workflowsSet.add(doc.id)
+          // Add current workflow if not already present
+          const workflowsSet = new Set(existingWorkflows)
+          workflowsSet.add(doc.id)
 
-        req.payload.logger.info(
-          `[updateNodeRelationships] Updating node ${nodeId} to include workflow ${doc.id}`,
-        )
+          req.payload.logger.info(
+            `[updateNodeRelationships] Updating node ${nodeId} (type: ${node.type}) to include workflow ${doc.id}`,
+          )
 
-        return req.payload.update({
-          collection: 'n8n-nodes',
-          id: nodeId,
-          data: {
-            workflows: Array.from(workflowsSet),
-          },
-        })
+          return req.payload.update({
+            collection: 'n8n-nodes',
+            id: node.id,
+            data: {
+              workflows: Array.from(workflowsSet),
+            },
+          })
+        } catch (error) {
+          req.payload.logger.error(
+            `[updateNodeRelationships] Error updating node ${nodeId}: ${error}`,
+          )
+          return null
+        }
       })
 
       await Promise.all(updatePromises)
@@ -146,7 +155,7 @@ export const extractNodes: CollectionBeforeChangeHook = async ({
           }
 
           const updateData = {
-            id: existingNode.id, // Use the actual document ID, not type
+            id: existingNode.id, // Use the actual document ID
             name,
             type,
             description: existingNode.description || '',
@@ -164,9 +173,9 @@ export const extractNodes: CollectionBeforeChangeHook = async ({
         } else {
           req.payload.logger.info(`[extractNodes] Node ${type} doesn't exist, will create new`)
 
-          // For new nodes, include the current workflow in the workflows field
+          // For new nodes, we don't set the id field - let Payload handle it
+          // The beforeValidate hook in the nodes collection will set id = type
           const createData = {
-            id: type, // Use type as the ID for new nodes
             name,
             type,
             description: '',

@@ -15,22 +15,6 @@ export const Nodes: CollectionConfig = {
   },
   fields: [
     {
-      name: 'id',
-      type: 'text',
-      required: true,
-      admin: {
-        hidden: true,
-      },
-      hooks: {
-        beforeValidate: [
-          ({ value, data }) => {
-            // Use the type field as the ID
-            return data?.type || value
-          },
-        ],
-      },
-    },
-    {
       name: 'name',
       type: 'text',
     },
