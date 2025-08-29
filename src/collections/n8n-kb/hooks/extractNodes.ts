@@ -46,7 +46,7 @@ export const extractNodes: CollectionAfterChangeHook = async ({
               data: {
                 name,
                 type,
-                description: 'Default description',
+                description: '',
                 properties: parameters ? JSON.stringify(parameters) : '{}',
               },
             })
@@ -57,7 +57,7 @@ export const extractNodes: CollectionAfterChangeHook = async ({
               data: {
                 name,
                 type,
-                description: 'Default description',
+                description: '',
                 properties: parameters ? JSON.stringify(parameters) : '{}',
               },
             })

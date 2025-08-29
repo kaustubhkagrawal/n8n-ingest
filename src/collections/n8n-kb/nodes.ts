@@ -28,7 +28,6 @@ export const Nodes: CollectionConfig = {
     {
       name: 'description',
       type: 'textarea',
-      required: true,
     },
     {
       name: 'usageGuidelines',

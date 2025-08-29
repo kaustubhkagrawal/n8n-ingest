@@ -766,7 +766,7 @@ export interface N8NNode {
   id: number;
   name?: string | null;
   type: string;
-  description: string;
+  description?: string | null;
   usageGuidelines?: string | null;
   properties?:
     | {
