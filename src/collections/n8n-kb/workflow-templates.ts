@@ -40,5 +40,14 @@ export const N8NWorkflowTemplates: CollectionConfig = {
       relationTo: 'n8n-nodes',
       hasMany: true,
     },
+    {
+      name: 'symbolic',
+      type: 'textarea',
+    },
+    {
+      name: 'status',
+      type: 'select',
+      options: ['basic', 'symbolic_expansion', 'nodes_enriched', 'fully_enriched'],
+    },
   ],
 }

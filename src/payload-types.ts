@@ -756,6 +756,8 @@ export interface N8NWorkflowTemplate {
     | boolean
     | null;
   nodes?: (string | N8NNode)[] | null;
+  symbolic?: string | null;
+  status?: ('basic' | 'symbolic_expansion' | 'nodes_enriched' | 'fully_enriched') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1355,6 +1357,8 @@ export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
   name?: T;
   workflow?: T;
   nodes?: T;
+  symbolic?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
