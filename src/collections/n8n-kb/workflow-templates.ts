@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone } from '../../access/anyone'
 import { authenticated } from '../../access/authenticated'
-import { extractNodes } from './hooks/extractNodes'
+import { extractNodes, updateNodeRelationshipsAfterCreate } from './hooks/extractNodes'
 
 export const N8NWorkflowTemplates: CollectionConfig = {
   slug: 'n8n-workflow-templates',
@@ -12,6 +12,7 @@ export const N8NWorkflowTemplates: CollectionConfig = {
   },
   hooks: {
     beforeChange: [extractNodes],
+    afterChange: [updateNodeRelationshipsAfterCreate],
   },
   access: {
     create: anyone,
