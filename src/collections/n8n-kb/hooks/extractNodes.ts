@@ -6,12 +6,10 @@ export const extractNodes: CollectionAfterChangeHook = async ({
   req, // full express request
   previousDoc, // document data before updating the collection
   operation, // name of the operation ie. 'create', 'update'
-}: {
-  doc: any
-  req: any
-  previousDoc: any
-  operation: 'create' | 'update' | 'delete'
-}) => {
+}: Parameters<CollectionAfterChangeHook>[0]) => {
+  // Add a log to indicate the hook is triggered
+  req.payload.logger.info(`extractNodes hook triggered for operation: ${operation}`)
+
   if (operation === 'update' || operation === 'create') {
     try {
       const workflowData = doc.workflow
@@ -29,7 +27,7 @@ export const extractNodes: CollectionAfterChangeHook = async ({
 
         try {
           const existingNode = await req.payload.find({
-            collection: 'nodes',
+            collection: 'n8n-nodes',
             where: {
               type: {
                 equals: type,
@@ -43,26 +41,24 @@ export const extractNodes: CollectionAfterChangeHook = async ({
             // Update existing node
             const nodeIdToUpdate = existingNode.docs[0].id
             savedNode = await req.payload.update({
-              collection: 'n8n-nodes' as any,
+              collection: 'n8n-nodes',
               id: nodeIdToUpdate,
               data: {
                 name,
                 type,
-                position,
-                parameters: parameters ? JSON.stringify(parameters) : '{}',
-                typeVersion,
+                description: 'Default description',
+                properties: parameters ? JSON.stringify(parameters) : '{}',
               },
             })
           } else {
             // Create new node
             savedNode = await req.payload.create({
-              collection: 'n8n-nodes' as any,
+              collection: 'n8n-nodes',
               data: {
                 name,
                 type,
-                position,
-                parameters: parameters ? JSON.stringify(parameters) : '{}',
-                typeVersion,
+                description: 'Default description',
+                properties: parameters ? JSON.stringify(parameters) : '{}',
               },
             })
           }
@@ -77,7 +73,7 @@ export const extractNodes: CollectionAfterChangeHook = async ({
       // Update the workflow template with the extracted node relationships
       if (extractedNodeIds.length > 0) {
         await req.payload.update({
-          collection: 'n8n-workflow-templates' as any,
+          collection: 'n8n-workflow-templates',
           id: doc.id,
           data: {
             nodes: extractedNodeIds,
