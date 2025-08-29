@@ -1,3 +1,4 @@
+import { anyone } from '@/access/anyone'
 import type { CollectionConfig } from 'payload'
 
 export const Nodes: CollectionConfig = {
@@ -7,13 +8,15 @@ export const Nodes: CollectionConfig = {
     group: 'n8n-kb',
   },
   access: {
-    read: () => true,
+    read: anyone,
+    create: anyone,
+    update: anyone,
+    delete: anyone,
   },
   fields: [
     {
       name: 'name',
       type: 'text',
-      required: true,
     },
     {
       name: 'type',

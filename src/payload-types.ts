@@ -744,7 +744,7 @@ export interface Form {
  */
 export interface N8NWorkflowTemplate {
   id: number;
-  name: string;
+  name?: string | null;
   workflow:
     | {
         [k: string]: unknown;
@@ -764,7 +764,7 @@ export interface N8NWorkflowTemplate {
  */
 export interface N8NNode {
   id: number;
-  name: string;
+  name?: string | null;
   type: string;
   description: string;
   usageGuidelines?: string | null;
@@ -1350,7 +1350,6 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "n8n-workflow-templates_select".
  */
 export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
-  id?: T;
   name?: T;
   workflow?: T;
   nodes?: T;

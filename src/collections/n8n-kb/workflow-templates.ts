@@ -13,22 +13,15 @@ export const N8NWorkflowTemplates: CollectionConfig = {
     afterChange: [extractNodes],
   },
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: anyone,
+    delete: anyone,
     read: anyone,
-    update: authenticated,
+    update: anyone,
   },
   fields: [
     {
-      name: 'id',
-      type: 'number',
-      required: true,
-      unique: true,
-    },
-    {
       name: 'name',
       type: 'text',
-      required: true,
     },
     {
       name: 'workflow',
