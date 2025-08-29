@@ -72,6 +72,8 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    'n8n-workflow-templates': N8NWorkflowTemplate;
+    'n8n-nodes': N8NNode;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -88,6 +90,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'n8n-workflow-templates': N8NWorkflowTemplatesSelect<false> | N8NWorkflowTemplatesSelect<true>;
+    'n8n-nodes': N8NNodesSelect<false> | N8NNodesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -736,6 +740,48 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "n8n-workflow-templates".
+ */
+export interface N8NWorkflowTemplate {
+  id: number;
+  name: string;
+  workflow:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  nodes?: (number | N8NNode)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "n8n-nodes".
+ */
+export interface N8NNode {
+  id: number;
+  name: string;
+  type: string;
+  description: string;
+  usageGuidelines?: string | null;
+  properties?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -926,6 +972,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'n8n-workflow-templates';
+        value: number | N8NWorkflowTemplate;
+      } | null)
+    | ({
+        relationTo: 'n8n-nodes';
+        value: number | N8NNode;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1290,6 +1344,31 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "n8n-workflow-templates_select".
+ */
+export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
+  id?: T;
+  name?: T;
+  workflow?: T;
+  nodes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "n8n-nodes_select".
+ */
+export interface N8NNodesSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  description?: T;
+  usageGuidelines?: T;
+  properties?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
