@@ -21,6 +21,11 @@ export const N8NWorkflowTemplates: CollectionConfig = {
   },
   fields: [
     {
+      name: 'workflowId',
+      type: 'text',
+      index: true,
+    },
+    {
       name: 'name',
       type: 'text',
     },
