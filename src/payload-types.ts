@@ -756,7 +756,61 @@ export interface N8NWorkflowTemplate {
     | boolean
     | null;
   nodes?: (string | N8NNode)[] | null;
+  /**
+   * Detailed description of what the workflow does
+   */
+  description?: string | null;
+  /**
+   * Mermaid diagram representation of the workflow
+   */
   symbolic?: string | null;
+  /**
+   * Gherkin-style step-by-step breakdown of the workflow
+   */
+  stepBreakdown?: string | null;
+  /**
+   * Array of objects describing each node's role and general purpose
+   */
+  nodesUsage?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * List of scenarios when to use this workflow
+   */
+  whenToUse?:
+    | {
+        scenario?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Conceptual understanding of the workflow
+   */
+  mentalModel?: string | null;
+  /**
+   * Searchable tags for the workflow
+   */
+  tags?:
+    | {
+        tag?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Categories the workflow belongs to
+   */
+  categories?:
+    | {
+        category?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   status?: ('basic' | 'symbolic_expansion' | 'nodes_enriched' | 'fully_enriched') | null;
   updatedAt: string;
   createdAt: string;
@@ -1361,7 +1415,29 @@ export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
   name?: T;
   workflow?: T;
   nodes?: T;
+  description?: T;
   symbolic?: T;
+  stepBreakdown?: T;
+  nodesUsage?: T;
+  whenToUse?:
+    | T
+    | {
+        scenario?: T;
+        id?: T;
+      };
+  mentalModel?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  categories?:
+    | T
+    | {
+        category?: T;
+        id?: T;
+      };
   status?: T;
   updatedAt?: T;
   createdAt?: T;
