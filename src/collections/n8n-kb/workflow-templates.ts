@@ -42,8 +42,78 @@ export const N8NWorkflowTemplates: CollectionConfig = {
       hasMany: true,
     },
     {
+      name: 'description',
+      type: 'textarea',
+      admin: {
+        description: 'Detailed description of what the workflow does',
+      },
+    },
+    {
       name: 'symbolic',
       type: 'textarea',
+      admin: {
+        description: 'Mermaid diagram representation of the workflow',
+      },
+    },
+    {
+      name: 'stepBreakdown',
+      type: 'textarea',
+      admin: {
+        description: 'Gherkin-style step-by-step breakdown of the workflow',
+      },
+    },
+    {
+      name: 'nodesUsage',
+      type: 'json',
+      admin: {
+        description: "Array of objects describing each node's role and general purpose",
+      },
+    },
+    {
+      name: 'whenToUse',
+      type: 'array',
+      fields: [
+        {
+          name: 'scenario',
+          type: 'text',
+        },
+      ],
+      admin: {
+        description: 'List of scenarios when to use this workflow',
+      },
+    },
+    {
+      name: 'mentalModel',
+      type: 'textarea',
+      admin: {
+        description: 'Conceptual understanding of the workflow',
+      },
+    },
+    {
+      name: 'tags',
+      type: 'array',
+      fields: [
+        {
+          name: 'tag',
+          type: 'text',
+        },
+      ],
+      admin: {
+        description: 'Searchable tags for the workflow',
+      },
+    },
+    {
+      name: 'categories',
+      type: 'array',
+      fields: [
+        {
+          name: 'category',
+          type: 'text',
+        },
+      ],
+      admin: {
+        description: 'Categories the workflow belongs to',
+      },
     },
     {
       name: 'status',
