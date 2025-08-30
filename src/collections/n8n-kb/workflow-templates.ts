@@ -71,13 +71,7 @@ export const N8NWorkflowTemplates: CollectionConfig = {
     },
     {
       name: 'whenToUse',
-      type: 'array',
-      fields: [
-        {
-          name: 'scenario',
-          type: 'text',
-        },
-      ],
+      type: 'json',
       admin: {
         description: 'List of scenarios when to use this workflow',
       },
@@ -91,26 +85,16 @@ export const N8NWorkflowTemplates: CollectionConfig = {
     },
     {
       name: 'tags',
-      type: 'array',
-      fields: [
-        {
-          name: 'tag',
-          type: 'text',
-        },
-      ],
+      type: 'json',
+
       admin: {
         description: 'Searchable tags for the workflow',
       },
     },
     {
       name: 'categories',
-      type: 'array',
-      fields: [
-        {
-          name: 'category',
-          type: 'text',
-        },
-      ],
+      type: 'json',
+
       admin: {
         description: 'Categories the workflow belongs to',
       },

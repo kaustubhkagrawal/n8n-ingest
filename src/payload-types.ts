@@ -785,9 +785,12 @@ export interface N8NWorkflowTemplate {
    */
   whenToUse?:
     | {
-        scenario?: string | null;
-        id?: string | null;
-      }[]
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   /**
    * Conceptual understanding of the workflow
@@ -798,18 +801,24 @@ export interface N8NWorkflowTemplate {
    */
   tags?:
     | {
-        tag?: string | null;
-        id?: string | null;
-      }[]
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   /**
    * Categories the workflow belongs to
    */
   categories?:
     | {
-        category?: string | null;
-        id?: string | null;
-      }[]
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
     | null;
   status?: ('basic' | 'symbolic_expansion' | 'nodes_enriched' | 'fully_enriched') | null;
   updatedAt: string;
@@ -1419,25 +1428,10 @@ export interface N8NWorkflowTemplatesSelect<T extends boolean = true> {
   symbolic?: T;
   stepBreakdown?: T;
   nodesUsage?: T;
-  whenToUse?:
-    | T
-    | {
-        scenario?: T;
-        id?: T;
-      };
+  whenToUse?: T;
   mentalModel?: T;
-  tags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
-  categories?:
-    | T
-    | {
-        category?: T;
-        id?: T;
-      };
+  tags?: T;
+  categories?: T;
   status?: T;
   updatedAt?: T;
   createdAt?: T;
